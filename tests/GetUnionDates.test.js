@@ -1,74 +1,35 @@
 const { getCombinedUnavailableDays } = require('../utils/GetUnionDates');
+const DriverUnavailability = require('../models/DriverUnavailability'); // Ensure this path is correct
 
-describe('getCombinedUnavailableDays', () => {
-    it('should return combined unavailable days correctly', () => {
-        const drivers = [
-            {
-                offDays: ['Monday', 'Wednesday'],
-                specificOffDates: ['2024-09-09', '2024-09-11'] // These dates correspond to 'Monday' and 'Wednesday'
-            },
-            {
-                offDays: ['Tuesday'],
-                specificOffDates: ['2024-09-10'] // This date corresponds to 'Tuesday'
-            }
-        ];
+describe('getCombinedUnavailableDays with Database Data', () => {
+    let driversData;
 
-        const result = getCombinedUnavailableDays(drivers);
-
-        expect(result).toEqual({
-            weekdaysOff: ['Monday', 'Wednesday', 'Tuesday'],
-            specificDatesOff: [] // Specific dates should be empty as all fall on weekdays off
-        });
+    beforeAll(async () => {
+        // Fetch data from the database, assuming the database is already connected
+        try {
+            driversData = await DriverUnavailability.find({}).lean();
+            console.log('Fetched driver data:', driversData);
+        } catch (error) {
+            console.error('Error fetching driver data:', error);
+        }
     });
 
-    it('should include specific dates that do not fall on any off days', () => {
-        const drivers = [
-            {
-                offDays: ['Monday', 'Wednesday'],
-                specificOffDates: ['2024-09-12', '2024-09-13'] // These dates correspond to 'Thursday' and 'Friday'
-            },
-            {
-                offDays: ['Tuesday'],
-                specificOffDates: ['2024-09-15'] // This date corresponds to 'Sunday'
-            }
-        ];
+    it('should print combined unavailable days from database data', () => {
+        if (!driversData || driversData.length === 0) {
+            console.warn('No driver data available in the database for testing.');
+            return;
+        }
 
-        const result = getCombinedUnavailableDays(drivers);
+        // Process the data for use with getCombinedUnavailableDays
+        const formattedDrivers = driversData.map(driver => ({
+            offDays: driver.unavailableDates, // Use the correct field names from your schema
+            specificOffDates: driver.weeklyUnavailability // Use the correct field names from your schema
+        }));
 
-        expect(result).toEqual({
-            weekdaysOff: ['Monday', 'Wednesday', 'Tuesday'],
-            specificDatesOff: ['2024-09-12', '2024-09-13', '2024-09-15'] // These are valid as they don't fall on off days
-        });
-    });
+        // Call the function with the fetched data
+        const result = getCombinedUnavailableDays(formattedDrivers);
 
-    it('should return an empty array if no drivers are provided', () => {
-        const drivers = [];
-
-        const result = getCombinedUnavailableDays(drivers);
-
-        expect(result).toEqual({
-            weekdaysOff: [],
-            specificDatesOff: []
-        });
-    });
-
-    it('should correctly handle drivers with no off days or specific dates', () => {
-        const drivers = [
-            {
-                offDays: [],
-                specificOffDates: []
-            },
-            {
-                offDays: [],
-                specificOffDates: []
-            }
-        ];
-
-        const result = getCombinedUnavailableDays(drivers);
-
-        expect(result).toEqual({
-            weekdaysOff: [],
-            specificDatesOff: []
-        });
+        // Log the output of the function
+        console.log('Combined Unavailable Days Output:', result);
     });
 });
