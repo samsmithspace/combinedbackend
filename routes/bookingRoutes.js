@@ -1,10 +1,81 @@
 const express = require('express');
 const Booking = require('../models/Booking');
+const DriverUnavailability = require('../models/DriverUnavailability'); // Import the driver model
 const { sendWhatsAppMessage } = require('../services/twilioService');
+const { getCombinedUnavailableDays } = require('../utils/GetUnionDates'); // Import the function
+const { getDatesInNext30Days } = require('../utils/GetNext30days');
+const { getAvailableTimePeriods } = require('../utils/GetTimePeriod'); // Import getAvailableTimePeriods
 
 const router = express.Router();
 
-// Save a booking and send a WhatsApp message
+// Route to retrieve all drivers' data and apply getCombinedUnavailableDays
+router.get('/drivers/getdate', async (req, res) => {
+    try {
+        // Fetch all driver records from the database
+        const drivers = await DriverUnavailability.find({}).lean(); // Use lean() for plain JavaScript objects
+
+        if (!drivers || drivers.length === 0) {
+            return res.status(404).send({ error: 'No drivers found in the database' });
+        }
+
+        // Format the driver data for the getCombinedUnavailableDays function
+        const formattedDrivers = drivers.map(driver => ({
+            offDays: driver.unavailableDates, // Adjust based on your schema
+            specificOffDates: driver.weeklyUnavailability // Adjust based on your schema
+        }));
+
+        // Apply the function to get combined unavailable days
+        const combinedUnavailableDays = getCombinedUnavailableDays(formattedDrivers);
+
+        // Ensure the data is formatted correctly for getDatesInNext30Days
+        const weekdaysOff = combinedUnavailableDays.weekdaysOff;
+        const specificDatesOff = combinedUnavailableDays.specificDatesOff;
+        //console.log(weekdaysOff);
+        //console.log(specificDatesOff);
+        // Now apply getDatesInNext30Days
+        const result = getDatesInNext30Days(specificDatesOff,weekdaysOff);
+
+        // Send the result back to the client
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching driver data or applying function:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+router.get('/drivers/available-time-periods', async (req, res) => {
+    const { date } = req.query; // Expecting a query parameter named 'date'
+
+    if (!date) {
+        return res.status(400).send({ error: 'Date query parameter is required' });
+    }
+
+    try {
+        // Fetch all driver records from the database
+        const drivers = await DriverUnavailability.find({}).lean(); // Use lean() for plain JavaScript objects
+
+        if (!drivers || drivers.length === 0) {
+            return res.status(404).send({ error: 'No drivers found in the database' });
+        }
+
+        // Format the driver data for use with getAvailableTimePeriods
+        const formattedDrivers = drivers.map(driver => ({
+            offDays: driver.unavailableDates, // Adjust based on your schema
+            specificOffDates: driver.weeklyUnavailability, // Adjust based on your schema
+            workingTime: driver.workingHours.join('-') // Combine start and end times into 'HH:mm-HH:mm' format
+        }));
+
+        // Calculate available time periods for the specified date
+        const availableTimePeriods = getAvailableTimePeriods(formattedDrivers, date);
+
+        // Send the result back to the client
+        res.status(200).json({ availableTimePeriods });
+    } catch (error) {
+        console.error('Error calculating available time periods:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+// Existing booking routes
 router.post('/', async (req, res) => {
     try {
         const {
@@ -82,7 +153,6 @@ router.post('/', async (req, res) => {
             name,
             phone,
             email
-
         });
 
         await newBooking.save();
