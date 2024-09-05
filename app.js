@@ -8,13 +8,17 @@ const bookingRoutes = require('./routes/bookingRoutes');
 
 // Initialize Express
 const app = express();
+const allowedOrigins = ['https://van-removal-platform-eremovals.vercel.app', 'http://localhost:3000'];
 
 // Connect to MongoDB
 connectDB();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
 app.use(bodyParser.json());
 
 // Routes

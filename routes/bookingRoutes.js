@@ -7,7 +7,26 @@ const { getDatesInNext30Days } = require('../utils/GetNext30days');
 const { getAvailableTimePeriods } = require('../utils/GetTimePeriod'); // Import getAvailableTimePeriods
 
 const router = express.Router();
+function calculatePrice(details) {
+    const liftAvailable = details.liftAvailable;
+    const numberOfStairs = details.numberOfStairs;
+    const liftAvailableDest = details.liftAvailabledest;
+    const numberOfStairsRight = details.numberofstairsright;
 
+    if (numberOfStairs === 0 && numberOfStairsRight === 0) {
+        return 0;
+    }
+
+    if (liftAvailable && liftAvailableDest) {
+        return 20;
+    }
+
+    if ((liftAvailable && !liftAvailableDest) || (!liftAvailable && liftAvailableDest)) {
+        return (liftAvailable ? numberOfStairsRight : numberOfStairs) * 20;
+    }
+
+    return (numberOfStairs + numberOfStairsRight) * 20;
+}
 // Route to retrieve all drivers' data and apply getCombinedUnavailableDays
 router.get('/drivers/getdate', async (req, res) => {
     try {
@@ -105,6 +124,8 @@ router.post('/', async (req, res) => {
                         return total + (box.numberOfBoxes * 3.69);
                     case 'large (or heavier than 20 kg)':
                         return total + (box.numberOfBoxes * 4.5);
+                    case 'Extra large':
+                        return total + (box.numberOfBoxes * 15);
                     default:
                         return total;
                 }
@@ -119,16 +140,15 @@ router.post('/', async (req, res) => {
                         return total + (box.numberOfBoxes * 5);
                     case 'large (or heavier than 20 kg)':
                         return total + (box.numberOfBoxes * 6.8);
+                    case 'Extra large':
+                        return total + (box.numberOfBoxes * 25);
                     default:
                         return total;
                 }
             }, 0);
-
-            // Additional cost for stairs if lift is not available
-            if (!details.liftAvailable) {
-                price += details.numberOfStairs * 2;
-                helperprice += details.numberOfStairs * 2;
-            }
+            let liftprice=calculatePrice(details)
+            price += liftprice;
+            helperprice += liftprice;
         }
 
         price = Math.max(price, 50);
@@ -158,7 +178,7 @@ router.post('/', async (req, res) => {
         await newBooking.save();
 
         // Send WhatsApp message
-        await sendWhatsAppMessage(newBooking);
+        //await sendWhatsAppMessage(newBooking);
         console.log(newBooking);
         res.status(201).send({ message: 'Booking saved and WhatsApp message sent', booking: newBooking });
     } catch (error) {
