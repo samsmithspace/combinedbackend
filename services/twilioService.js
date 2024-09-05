@@ -17,9 +17,10 @@ const sendWhatsAppMessage = async (booking) => {
         From: ${booking.startLocation}
         To: ${booking.destinationLocation}
         Move Type: ${booking.moveType}
+        Box details: ${booking.details.boxDetails}
         Distance: ${booking.distance}
-        Price: $${booking.price}
-        Helper Price: $${booking.helperprice}
+        Price: £${booking.price}
+        Helper Price: £${booking.helperprice}
         Date: ${booking.date}
         Time: ${booking.time}
     `;
