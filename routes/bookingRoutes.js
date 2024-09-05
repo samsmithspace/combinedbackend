@@ -7,6 +7,25 @@ const { getDatesInNext30Days } = require('../utils/GetNext30days');
 const { getAvailableTimePeriods } = require('../utils/GetTimePeriod'); // Import getAvailableTimePeriods
 
 const router = express.Router();
+function calculateDistancePrice(startDistance, destDistance, distance) {
+    // Extract the numeric value from the distance string
+    const distanceValue = parseFloat(distance);
+
+    let price = 0;
+
+    // Determine the price based on the given conditions
+    if (startDistance < 5 && destDistance < 5) {
+        price = 0; // Both distances are less than 5 miles
+    } else if (distanceValue > 5 && distanceValue < 20) {
+        price = distanceValue * 1.5;
+    } else if (distanceValue >= 20 && distanceValue < 60) {
+        price = distanceValue * 1.6;
+    } else if (distanceValue >= 60) {
+        price = distanceValue * 2;
+    }
+
+    return price;
+}
 function calculatePrice(details) {
     const liftAvailable = details.liftAvailable;
     const numberOfStairs = details.numberOfStairs;
@@ -95,6 +114,8 @@ router.get('/drivers/available-time-periods', async (req, res) => {
 });
 
 // Existing booking routes
+const axios = require('axios');
+
 router.post('/', async (req, res) => {
     try {
         const {
@@ -109,6 +130,55 @@ router.post('/', async (req, res) => {
             phone,
             email
         } = req.body;
+
+        const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY; // Make sure to set this in your environment variables
+        const referencePoint = "Apex Scotland, 9 Great Stuart St, Edinburgh EH3 7TP";
+
+        // Function to check if a location is within a 5-mile radius of the reference point
+        const getDistanceFromAPI = async (origin, destination) => {
+            const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+                params: {
+                    origins: origin,
+                    destinations: destination,
+                    travelMode: 'DRIVING',
+                    key: googleMapsApiKey,
+                    units: 'imperial' // For miles
+                }
+            });
+
+            if (response.data.status === 'OK' && response.data.rows[0].elements[0].status === 'OK') {
+                const distanceText = response.data.rows[0].elements[0].distance.text;
+                return convertDistanceToMiles(distanceText);
+            } else {
+                throw new Error(`Error fetching distance: ${response.data.status}`);
+            }
+        };
+
+        // Function to convert distance text to miles
+        const convertDistanceToMiles = (distanceText) => {
+            const distanceParts = distanceText.split(' ');
+            const distanceValue = parseFloat(distanceParts[0]);
+            const distanceUnit = distanceParts[1];
+
+            if (distanceUnit === 'km') {
+                const distanceInMiles = distanceValue * 0.621371; // Convert km to miles
+                return distanceInMiles;
+            } else if (distanceUnit === 'm') {
+                const distanceInMiles = distanceValue * 0.000621371; // Convert meters to miles
+                return distanceInMiles;
+            } else {
+                return distanceValue; // Already in miles or unrecognized unit
+            }
+        };
+
+        // Calculate distances from startLocation and destinationLocation to the reference point
+        const startDistance = await getDistanceFromAPI(startLocation, referencePoint);
+        const destDistance = await getDistanceFromAPI(destinationLocation, referencePoint);
+
+        //console.log(startDistance);
+        //console.log(destDistance);
+
+        let distprice=calculateDistancePrice(startDistance,destDistance,distance);
 
         // Price calculation logic
         let price = 0; // Base price
@@ -146,9 +216,13 @@ router.post('/', async (req, res) => {
                         return total;
                 }
             }, 0);
-            let liftprice=calculatePrice(details)
+
+            let liftprice = calculatePrice(details);
             price += liftprice;
             helperprice += liftprice;
+
+            price += distprice;
+            helperprice += distprice;
         }
 
         price = Math.max(price, 50);
@@ -178,7 +252,7 @@ router.post('/', async (req, res) => {
         await newBooking.save();
 
         // Send WhatsApp message
-        //await sendWhatsAppMessage(newBooking);
+        // await sendWhatsAppMessage(newBooking);
         console.log(newBooking);
         res.status(201).send({ message: 'Booking saved and WhatsApp message sent', booking: newBooking });
     } catch (error) {
@@ -186,6 +260,7 @@ router.post('/', async (req, res) => {
         res.status(400).send({ error: 'Error saving booking or sending WhatsApp message' });
     }
 });
+
 
 // Update booking with contact information and send WhatsApp message
 router.post('/:id/contact', async (req, res) => {
