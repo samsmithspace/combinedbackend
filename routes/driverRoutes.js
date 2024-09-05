@@ -110,6 +110,7 @@ router.post('/unavailability', async (req, res) => {
         }
         if (Array.isArray(workingHours)) {
             const extractedTimes = extractTimeStrings(workingHours.join(','));
+
             driver.workingHours = extractedTimes;
         }
 
