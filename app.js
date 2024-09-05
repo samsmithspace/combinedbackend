@@ -8,7 +8,7 @@ const bookingRoutes = require('./routes/bookingRoutes');
 
 // Initialize Express
 const app = express();
-const allowedOrigins = ['https://van-removal-platform-eremovals.vercel.app', 'https://driver-system-gilt.vercel.app','http://localhost:3000','http://localhost:3002','http://localhost:3001'];
+const allowedOrigins = ['https://van-removal-platform-eremovals.vercel.app', 'https://www.eremovals.uk','https://driver-system-gilt.vercel.app','http://localhost:3000','http://localhost:3003','http://localhost:3001'];
 
 // Connect to MongoDB
 connectDB();
