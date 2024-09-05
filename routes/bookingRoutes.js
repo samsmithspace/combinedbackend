@@ -17,11 +17,11 @@ function calculateDistancePrice(startDistance, destDistance, distance) {
     if (startDistance < 5 && destDistance < 5) {
         price = 0; // Both distances are less than 5 miles
     } else if (distanceValue > 5 && distanceValue < 20) {
-        price = distanceValue * 1.5;
+        price = distanceValue * 1.6;
     } else if (distanceValue >= 20 && distanceValue < 60) {
         price = distanceValue * 1.6;
     } else if (distanceValue >= 60) {
-        price = distanceValue * 2;
+        price = distanceValue * 1.6;
     }
 
     return price;
