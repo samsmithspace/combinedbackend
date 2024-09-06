@@ -5,8 +5,40 @@ const { sendWhatsAppMessage } = require('../services/twilioService');
 const { getCombinedUnavailableDays } = require('../utils/GetUnionDates'); // Import the function
 const { getDatesInNext30Days } = require('../utils/GetNext30days');
 const { getAvailableTimePeriods } = require('../utils/GetTimePeriod'); // Import getAvailableTimePeriods
-
+const { sendEmail } = require('../services/emailService');
 const router = express.Router();
+function countBoxesBySize(details) {
+    // Initialize variables to store the counts for each box size
+    let smallCount = 0;
+    let mediumCount = 0;
+    let largeCount = 0;
+    let extraLargeCount = 0;
+
+    // Iterate through the box details to count the number of boxes for each size
+    details.boxDetails.forEach(box => {
+        switch (box.boxSize) {
+            case 'small':
+                smallCount += box.numberOfBoxes;
+                break;
+            case 'medium':
+                mediumCount += box.numberOfBoxes;
+                break;
+            case 'large (or heavier than 20 kg)':
+                largeCount += box.numberOfBoxes;
+                break;
+            case 'Extra large':
+                extraLargeCount += box.numberOfBoxes;
+                break;
+            default:
+                // Handle any unexpected box sizes if needed
+                break;
+        }
+    });
+
+    // Return an array with the counts in the order: [small, medium, large, extraLarge]
+    return [smallCount, mediumCount, largeCount, extraLargeCount];
+}
+
 function calculateDistancePrice(startDistance, destDistance, distance) {
     // Extract the numeric value from the distance string
     const distanceValue = parseFloat(distance);
@@ -115,6 +147,7 @@ router.get('/drivers/available-time-periods', async (req, res) => {
 
 // Existing booking routes
 const axios = require('axios');
+
 
 router.post('/', async (req, res) => {
     try {
@@ -280,7 +313,55 @@ router.post('/:id/contact', async (req, res) => {
         }
 
         // Send WhatsApp message after updating contact information
+
+
+        res.status(200).send({ message: 'Contact information added and WhatsApp message sent', booking: updatedBooking });
+    } catch (error) {
+        console.error('Error updating booking with contact information:', error);
+        res.status(400).send({ error: 'Error updating booking with contact information' });
+    }
+});
+
+router.post('/:id/send', async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+        // Find the booking by ID and update it with the contact information
+        const updatedBooking = await Booking.findByIdAndUpdate(
+            bookingId,
+        );
+
+        if (!updatedBooking) {
+            return res.status(404).send({ error: 'Booking not found' });
+        }
+
+        // Send WhatsApp message after updating contact information
         await sendWhatsAppMessage(updatedBooking);
+
+        let boxsizes = countBoxesBySize(updatedBooking.details);
+        const jobData = {
+            clientName: updatedBooking.name,
+            clientPhone: updatedBooking.phone,
+            clientEmail: updatedBooking.email,
+            startAddress: updatedBooking.startLocation,
+            destinationAddress: updatedBooking.destinationLocation,
+            distance: updatedBooking.distance,
+            moveDate: updatedBooking.date,
+            moveTime: updatedBooking.time,
+            smallBoxes: boxsizes[0],
+            mediumBoxes: boxsizes[1],
+            largeBoxes: boxsizes[2],
+            extraLargeBoxes: boxsizes[3],
+            specialItems: updatedBooking.specialItems,
+            liftStart: updatedBooking.details.liftAvailable,
+            stairsStart: updatedBooking.details.numberOfStairs,
+            liftDestination: updatedBooking.details.liftAvailabledest,
+            stairsDestination: updatedBooking.details.numberofstairsright,
+            estimatedPrice: updatedBooking.price,
+            estimatedPriceWithHelper: updatedBooking.helperprice,
+            drivername:"Isaac",
+            driveremail:process.env.EMAIL
+        };
+        await sendEmail(jobData);
 
         res.status(200).send({ message: 'Contact information added and WhatsApp message sent', booking: updatedBooking });
     } catch (error) {
