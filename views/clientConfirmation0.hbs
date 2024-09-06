@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Removal Job Request Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        .job-details {
+            margin: 20px 0;
+        }
+        .job-details p {
+            margin: 5px 0;
+        }
+        .job-details strong {
+            color: #333;
+        }
+        .cta {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Your Removal Job Request Has Been Received</h2>
+    <p>Hello, {{clientName}}</p>
+    <p>Thank you for your removal job request. Below are the details you provided:</p>
+
+    <div class="job-details">
+        <h3>Your Information</h3>
+        <p><strong>Name:</strong> {{clientName}}</p>
+        <p><strong>Phone Number:</strong> {{clientPhone}}</p>
+        <p><strong>Email Address:</strong> <a href="mailto:{{clientEmail}}">{{clientEmail}}</a></p>
+
+        <h3>Job Details</h3>
+        <p><strong>Start Address:</strong> {{startAddress}}</p>
+        <p><strong>Destination Address:</strong> {{destinationAddress}}</p>
+        <p><strong>Move Date and Time:</strong> {{moveDate}} at {{moveTime}}</p>
+        <p><strong>Distance:</strong> {{distance}}</p>
+
+        <h3>Boxes and Special Items</h3>
+        <p><strong>Small Boxes:</strong> {{smallBoxes}}</p>
+        <p><strong>Medium Boxes:</strong> {{mediumBoxes}}</p>
+        <p><strong>Large Boxes:</strong> {{largeBoxes}}</p>
+        <p><strong>Extra Large Boxes:</strong> {{extraLargeBoxes}}</p>
+        <p><strong>Special Items:</strong> {{specialItems}}</p>
+    </div>
+
+    <p>Once a driver is assigned to your job, we will contact you with further details.</p>
+
+    <p>If you have any questions in the meantime, feel free to reach out to us at <a href="mailto:eremovalsscot.gmail.com">eremovalsscot.gmail.com</a>.</p>
+
+    <p>Thank you for choosing Eremovals!</p>
+    <p>The Eremovals Team</p>
+</div>
+</body>
+</html>
