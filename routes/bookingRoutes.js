@@ -69,14 +69,14 @@ function calculatePrice(details) {
     }
 
     if (liftAvailable && liftAvailableDest) {
-        return 20;
+        return 15;
     }
 
     if ((liftAvailable && !liftAvailableDest) || (!liftAvailable && liftAvailableDest)) {
-        return (liftAvailable ? numberOfStairsRight : numberOfStairs) * 20;
+        return (liftAvailable ? numberOfStairsRight : numberOfStairs) * 15;
     }
 
-    return (numberOfStairs + numberOfStairsRight) * 20;
+    return (numberOfStairs + numberOfStairsRight) * 15;
 }
 // Route to retrieve all drivers' data and apply getCombinedUnavailableDays
 router.get('/drivers/getdate', async (req, res) => {
