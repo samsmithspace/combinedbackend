@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Removal Job Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        .job-details {
+            margin: 20px 0;
+        }
+        .job-details p {
+            margin: 5px 0;
+        }
+        .job-details strong {
+            color: #333;
+        }
+        .pricing {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .cta {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .cta button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>New Removal Job Assigned to You</h2>
+    <p>Hello, {{drivername}}</p>
+    <p>You have been assigned a new removal job. Please find the details below:</p>
+
+    <div class="job-details">
+        <h3>Client Information</h3>
+        <p><strong>Name:</strong> {{clientName}}</p>
+        <p><strong>Phone Number:</strong> {{clientPhone}}</p>
+        <p><strong>Email Address:</strong> <a href="mailto:{{clientEmail}}">{{clientEmail}}</a></p>
+
+        <h3>Job Details</h3>
+        <p><strong>Start Address:</strong> {{startAddress}}</p>
+        <p><strong>Destination Address:</strong> {{destinationAddress}}</p>
+        <p><strong>Distance:</strong> {{distance}}</p>
+        <p><strong>Move Date and Time:</strong> {{moveDate}} at {{moveTime}}</p>
+
+        <h3>Boxes and Special Items</h3>
+        <p><strong>Small Boxes:</strong> {{smallBoxes}}</p>
+        <p><strong>Medium Boxes:</strong> {{mediumBoxes}}</p>
+        <p><strong>Large Boxes:</strong> {{largeBoxes}}</p>
+        <p><strong>Extra Large Boxes:</strong> {{extraLargeBoxes}}</p>
+        <p><strong>Special Items:</strong> {{specialItems}}</p>
+
+        <h3>Location Conditions</h3>
+        <p><strong>Lift Availability at Start Location:</strong> {{liftStart}}</p>
+        <p><strong>Stairs at Start Location:</strong> {{stairsStart}}</p>
+        <p><strong>Lift Availability at Destination:</strong> {{liftDestination}}</p>
+        <p><strong>Stairs at Destination:</strong> {{stairsDestination}}</p>
+    </div>
+
+    <div class="pricing">
+        <h3>Estimated Pricing</h3>
+        <p><strong>Estimated Price:</strong> £{{estimatedPrice}}</p>
+        <p><strong>Estimated Price with Helper:</strong> £{{estimatedPriceWithHelper}}</p>
+    </div>
+    <!--
+    <div class="cta">
+        <button>Accept Job</button>
+    </div>
+    -->
+    <p>Thank you!</p>
+    <p>Eremovals Team</p>
+
+</div>
+</body>
+</html>
