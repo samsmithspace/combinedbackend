@@ -6,6 +6,7 @@ const { getCombinedUnavailableDays } = require('../utils/GetUnionDates'); // Imp
 const { getDatesInNext30Days } = require('../utils/GetNext30days');
 const { getAvailableTimePeriods } = require('../utils/GetTimePeriod'); // Import getAvailableTimePeriods
 const { sendEmail } = require('../services/emailService');
+const { sendEmail0 } = require('../services/emailServiceToClient0');
 const router = express.Router();
 function countBoxesBySize(details) {
     // Initialize variables to store the counts for each box size
@@ -362,6 +363,7 @@ router.post('/:id/send', async (req, res) => {
             driveremail:process.env.EMAIL
         };
         await sendEmail(jobData);
+        await sendEmail0(jobData);
 
         res.status(200).send({ message: 'Contact information added and WhatsApp message sent', booking: updatedBooking });
     } catch (error) {
