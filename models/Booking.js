@@ -11,6 +11,10 @@ const BookingSchema = new mongoose.Schema({
     distance: String,
     price: Number,
     helperprice: Number,
+    promoCodeApplied: {
+        type: Boolean,
+        default: false // Default is false, meaning no promo code has been applied
+    },
     name: String,
     phone: String,
     email: String
