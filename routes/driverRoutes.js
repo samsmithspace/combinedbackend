@@ -3,7 +3,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const DriverUnavailability = require('../models/DriverUnavailability');
 const { extractTimeStrings } = require('../utils/helpers');
-
+const { getCombinedUnavailableDays } = require('../utils/GetUnionDates'); // Import the function
+const { getDatesInNext30Days } = require('../utils/GetNext30days');
+const { getAvailableTimePeriods } = require('../utils/GetTimePeriod'); // Import getAvailableTimePeriods
 const router = express.Router();
 
 // Register a new driver
@@ -150,5 +152,60 @@ router.delete('/unavailability', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+// Fetch all drivers' unavailable dates and apply getCombinedUnavailableDays
+router.get('/getdate', async (req, res) => {
+    try {
+        const drivers = await DriverUnavailability.find({}).lean();
+
+        if (!drivers || drivers.length === 0) {
+            return res.status(404).send({ error: 'No drivers found' });
+        }
+
+        const formattedDrivers = drivers.map(driver => ({
+            offDays: driver.unavailableDates,
+            specificOffDates: driver.weeklyUnavailability
+        }));
+
+        const combinedUnavailableDays = getCombinedUnavailableDays(formattedDrivers);
+
+        const result = getDatesInNext30Days(combinedUnavailableDays.specificDatesOff, combinedUnavailableDays.weekdaysOff);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching driver data:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+// Fetch available time periods for drivers based on a specific date
+router.get('/available-time-periods', async (req, res) => {
+    const { date } = req.query;
+
+    if (!date) {
+        return res.status(400).send({ error: 'Date query parameter is required' });
+    }
+
+    try {
+        const drivers = await DriverUnavailability.find({}).lean();
+
+        if (!drivers || drivers.length === 0) {
+            return res.status(404).send({ error: 'No drivers found in the database' });
+        }
+
+        const formattedDrivers = drivers.map(driver => ({
+            offDays: driver.unavailableDates,
+            specificOffDates: driver.weeklyUnavailability,
+            workingTime: driver.workingHours.join('-')
+        }));
+
+        const availableTimePeriods = getAvailableTimePeriods(formattedDrivers, date);
+
+        res.status(200).json({ availableTimePeriods });
+    } catch (error) {
+        console.error('Error calculating available time periods:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
 
 module.exports = router;

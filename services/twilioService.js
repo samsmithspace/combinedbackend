@@ -7,14 +7,15 @@ const phoneNumber = process.env.PHONE;
 const twilioClient = twilio(twilioAccountSid, twilioAuthToken);
 
 // Function to send a WhatsApp message
-const sendWhatsAppMessage = async () => {
+const sendWhatsAppMessage = async (data) => {
 
-    const messageBody = "New Booking! Please check email."
     try {
         const message = await twilioClient.messages.create({
-            from: 'whatsapp:++442038185939',  // Twilio sandbox WhatsApp number
+            contentSid: "HXbbee96613ce59bacf9b94fedd8e0b548",
+            contentVariables: JSON.stringify({ 1: data.clientName+", "+data.clientPhone }),
+            from: 'whatsapp:+442038185939',  // Twilio sandbox WhatsApp number
+            messagingServiceSid: "MG30c690b5b9b778631ccdfcf2139b4031",
             to: `whatsapp:+44${phoneNumber}`,  // Customer's WhatsApp number
-            body: messageBody
         });
 
         console.log('WhatsApp message sent:', message.sid);
