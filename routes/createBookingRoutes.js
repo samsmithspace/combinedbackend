@@ -45,13 +45,13 @@ router.post('/', async (req, res) => {
 
         const startDistance = await getDistanceFromAPI(startLocation, referencePoint);
         const destDistance = await getDistanceFromAPI(destinationLocation, referencePoint);
-        //const distprice = calculateDistancePrice(startDistance, destDistance, distance);
+        const distprice = calculateDistancePrice(startDistance, destDistance, distance);
 
         let price = calculatePrice(details);
         let helperprice = calculatePrice(details);
 
-        price = Math.max(price, process.env.BASE_PRICE);
-        helperprice = Math.max(helperprice, process.env.BASE_PRICE);
+        price = Math.max(price, process.env.BASE_PRICE)+distprice;
+        helperprice = Math.max(helperprice, process.env.BASE_PRICE)+distprice;
 
         price *= 1.2;
         helperprice *= 1.2;
