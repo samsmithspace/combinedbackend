@@ -55,6 +55,31 @@
         <p><strong>Move Date and Time:</strong> {{moveDate}} at {{moveTime}}</p>
         <p><strong>Distance:</strong> {{distance}}</p>
 
+
+        {{#if furnitureDetails}}
+            {{#if furnitureDetails.length}}
+                <h3>Furniture Details</h3>
+                <ul>
+                    {{#each furnitureDetails}}
+                        <li>{{item}} - Quantity: {{quantity}}</li>
+                    {{/each}}
+                </ul>
+            {{/if}}
+        {{/if}}
+
+        <!-- Conditional Appliance Details Section -->
+        {{#if applianceDetails}}
+            {{#if applianceDetails.length}}
+                <h3>Appliance Details</h3>
+                <ul>
+                    {{#each applianceDetails}}
+                        <li>{{item}} - Quantity: {{quantity}}</li>
+                    {{/each}}
+                </ul>
+            {{/if}}
+        {{/if}}
+
+
         <h3>Boxes and Special Items</h3>
         <p><strong>Small Boxes:</strong> {{smallBoxes}}</p>
         <p><strong>Medium Boxes:</strong> {{mediumBoxes}}</p>
