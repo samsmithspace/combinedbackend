@@ -14,7 +14,9 @@ router.post('/:id/apply-promo', async (req, res) => {
 
     try {
         const validPromoCodes = {
-            'EREMOV': 10 // 10% discount
+            'EREMOV': 10, // 10% discount
+            'MVTRXB': 40
+
         };
 
         const discountPercent = validPromoCodes[promoCode.toUpperCase()];
