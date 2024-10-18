@@ -9,7 +9,6 @@ const router = express.Router();
 const stripe = require('stripe')(process.env.STRIP);
 const app = express();
 app.use(express.static('public'));
-
 const YOUR_DOMAIN = process.env.DOM;
 
 // Route to fetch booking details by booking ID
