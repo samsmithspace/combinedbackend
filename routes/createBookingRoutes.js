@@ -5,6 +5,112 @@ const axios = require('axios');
 const { calculateDistancePrice, calculatePrice} = require('../utils/helpers'); // Assuming you have helpers.js
 
 const router = express.Router();
+// This is your test secret API key.
+const stripe = require('stripe')('sk_test_51Q7yZiH2pNr83ttj02ujyyHIFgyPtUZJJURr0PfXFkG7INwyFTOwlYm17WZgEfI4WsePHOwqbM2U8oV1Qur3vHQB00oV73lEhS');
+const app = express();
+app.use(express.static('public'));
+
+const YOUR_DOMAIN = process.env.DOM;
+
+// Route to fetch booking details by booking ID
+router.get('/:bookingId', async (req, res) => {
+    try {
+        const bookingId = req.params.bookingId;
+
+        // Fetch the booking details using the booking ID
+        const booking = await Booking.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).send({ error: 'Booking not found' });
+        }
+
+        res.status(200).send({ booking });
+    } catch (error) {
+        console.error('Error fetching booking:', error);
+        res.status(500).send({ error: 'Error fetching booking' });
+    }
+});
+
+router.post('/:id/create-checkout-session-helper', async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+
+        const booking = await Booking.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).send({ error: 'Booking not found' });
+        }
+
+        const helperPriceInPence = Math.round(booking.helperprice * 100);
+
+        const session = await stripe.checkout.sessions.create({
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'gbp',
+                        product_data: {
+                            name: 'Move Service with Helper',
+                        },
+                        unit_amount: helperPriceInPence,
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${YOUR_DOMAIN}/booking-result?bookingId=${bookingId}`,
+            cancel_url: `${YOUR_DOMAIN}/payment-cancelled`,
+
+        });
+
+        res.status(200).send({ sessionId: session.id });
+    } catch (error) {
+        console.error('Error creating checkout session:', error);
+        res.status(500).send({ error: 'Error creating checkout session' });
+    }
+});
+
+
+
+router.post('/:id/create-checkout-session', async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+
+        const booking = await Booking.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).send({ error: 'Booking not found' });
+        }
+
+        const priceInPence = Math.round(booking.price * 100);
+
+        const session = await stripe.checkout.sessions.create({
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'gbp',
+                        product_data: {
+                            name: 'Move Service',
+                        },
+                        unit_amount: priceInPence,
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${YOUR_DOMAIN}/booking-result?bookingId=${bookingId}`,
+            cancel_url: `${YOUR_DOMAIN}/payment-cancelled`,
+
+        });
+
+        res.status(200).send({ sessionId: session.id });
+    } catch (error) {
+        console.error('Error creating checkout session:', error);
+        res.status(500).send({ error: 'Error creating checkout session' });
+    }
+});
+
+
+
 
 router.post('/', async (req, res) => {
     try {

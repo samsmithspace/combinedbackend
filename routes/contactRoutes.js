@@ -48,7 +48,6 @@ router.post('/:id/send', async (req, res) => {
 
         const boxsizes = countBoxesBySize(updatedBooking.details);
 
-
         const jobData = {
             clientName: updatedBooking.name,
             clientPhone: updatedBooking.phone,
