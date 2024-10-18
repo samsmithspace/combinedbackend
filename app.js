@@ -14,6 +14,7 @@ const promoCodeRoutes = require('./routes/promoCodeRoutes'); // Import the new p
 const app = express();
 const allowedOrigins = [
     'https://van-removal-platform-eremovals.vercel.app',
+    'https://van-removal-platform.vercel.app',
     'https://www.eremovals.uk',
     'https://driver-system-gilt.vercel.app',
     'http://localhost:3006',
