@@ -6,10 +6,9 @@ const { calculateDistancePrice, calculatePrice} = require('../utils/helpers'); /
 
 const router = express.Router();
 // This is your test secret API key.
-const stripe = require('stripe')('sk_test_51Q7yZiH2pNr83ttj02ujyyHIFgyPtUZJJURr0PfXFkG7INwyFTOwlYm17WZgEfI4WsePHOwqbM2U8oV1Qur3vHQB00oV73lEhS');
+const stripe = require('stripe')(process.env.STRIP);
 const app = express();
 app.use(express.static('public'));
-
 const YOUR_DOMAIN = process.env.DOM;
 
 // Route to fetch booking details by booking ID
