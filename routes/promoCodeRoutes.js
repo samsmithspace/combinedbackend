@@ -19,7 +19,8 @@ router.post('/:id/apply-promo', async (req, res) => {
             'KILFNS': 35,
             'OSNJPF': 30,
             'BJSALM': 25,
-            'IJNLFG': 20
+            'IJNLFG': 20,
+            'VIBEST': 20
 
         };
 
