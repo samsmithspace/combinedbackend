@@ -48,7 +48,7 @@ router.post('/:id/create-checkout-session-helper', async (req, res) => {
                     price_data: {
                         currency: 'gbp',
                         product_data: {
-                            name: 'Move Service with Helper',
+                            name: 'Move Service with Helper for '+booking.name,
                         },
                         unit_amount: helperPriceInPence,
                     },
@@ -57,7 +57,7 @@ router.post('/:id/create-checkout-session-helper', async (req, res) => {
             ],
             mode: 'payment',
             success_url: `${YOUR_DOMAIN}/booking-result?bookingId=${bookingId}`,
-            cancel_url: `${YOUR_DOMAIN}/payment-cancelled`,
+            cancel_url: `${YOUR_DOMAIN}`,
 
         });
 
@@ -88,7 +88,7 @@ router.post('/:id/create-checkout-session', async (req, res) => {
                     price_data: {
                         currency: 'gbp',
                         product_data: {
-                            name: 'Move Service',
+                            name: 'Move Service for '+booking.name,
                         },
                         unit_amount: priceInPence,
                     },
@@ -97,7 +97,7 @@ router.post('/:id/create-checkout-session', async (req, res) => {
             ],
             mode: 'payment',
             success_url: `${YOUR_DOMAIN}/booking-result?bookingId=${bookingId}`,
-            cancel_url: `${YOUR_DOMAIN}/payment-cancelled`,
+            cancel_url: `${YOUR_DOMAIN}`,
 
         });
 

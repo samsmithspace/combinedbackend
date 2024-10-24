@@ -20,8 +20,8 @@ router.post('/:id/apply-promo', async (req, res) => {
             'OSNJPF': 30,
             'BJSALM': 25,
             'IJNLFG': 20,
-            'VIBEST': 20
-
+            'VIBEST': 20,
+            'ISLAND': 15
         };
 
         const discountPercent = validPromoCodes[promoCode.toUpperCase()];
