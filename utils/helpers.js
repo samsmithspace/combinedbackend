@@ -117,72 +117,94 @@ function calculatePrice(details, ishelper) {
 
     // Furniture price mapping (you can adjust prices as needed)
     const furniturePriceMap = {
-        'Sofa (2-Seater)': 50,
-        'Sofa (3-Seater)': 60,
-        'Sofa (L-Shaped)': 80,
-        'Armchair': 30,
-        'Dining Table': 45,
+        'Sofa (2-Seater)': 35,
+        'Sofa (3-Seater)': 50,
+        'Sofa (L-Shaped)': 50,
+        'Armchair': 60,
+        'Dining Table': 30,
         'Single Bed': 40,
         'Double Bed': 50,
-        'Queen Bed': 60,
-        'King Bed': 70,
-        'Bunk Bed': 65,
-        'Wardrobe (Single Door)': 35,
-        'Wardrobe (Double Door)': 50,
-        'Wardrobe (Sliding Door)': 55,
-        'Bookcase (Small)': 20,
-        'Bookcase (Large)': 30,
-        'Desk': 25,
+        'Queen Bed': 50,
+        'King Bed': 50,
+        'Bunk Bed': 60,
+        'Wardrobe (Single Door)': 50,
+        'Wardrobe (Double Door)': 60,
+        'Wardrobe (Sliding Door)': 60,
+        'Bookcase (Small)': 25,
+        'Bookcase (Large)': 40,
+        'Desk': 40,
         'Nightstand': 15,
-        'Cabinet': 30,
-        'Ottoman': 15,
-        'TV Stand': 20,
-        'Office Chair': 15,
-        'Dining Chair': 10,
-        'Mirror (Large)': 15,
-        'Mirror (Small)': 10,
-        'Rug (Large)': 20,
-        'Rug (Small)': 10,
-        'Exercise Equipment': 40,
-        'Piano': 100,
-        'Bicycle': 25,
-        'Motorcycle': 150,
-        'Ladder': 10,
+        'Cabinet': 40,
+        'Ottoman': 55,
+        'TV Stand': 40,
+        'Office Chair': 30,
+        'Dining Chair': 15,
+        'Mirror (Large)': 30,
+        'Mirror (Small)': 30,
+        'Rug (Large)': 40,
+        'Rug (Small)': 30,
+        'Exercise Equipment': 30,
+        'Bicycle': 50,
+        'Ladder': 40
     };
+
 
 
     // Appliance price mapping (you can adjust prices as needed)
     const appliancePriceMap = {
         'Refrigerator (Mini)': 30,
-        'Refrigerator (Standard)': 50,
-        'Refrigerator (French Door)': 70,
+        'Refrigerator (Standard)': 60,
+        'Refrigerator (French Door)': 80,
         'Washing Machine': 40,
         'Microwave': 15,
-        'Oven': 40,
-        'Dishwasher': 35,
+        'Oven': 30,
+        'Dishwasher': 30,
         'Stove': 40,
-        'Television (Under 32")': 20,
-        'Television (32"-50")': 30,
-        'Television (Over 50")': 50,
-        'Stereo System': 25,
-        'Monitor': 15,
+        'Television (Under 32")': 25,
+        'Television (32"-50")': 40,
+        'Television (Over 50")': 60,
+        'Stereo System': 30,
+        'Monitor': 10,
         'Lawn Mower': 30,
-        'Hot Tub': 100,
-        'Water Heater': 50,
-        'Air Purifier': 15,
+        'Hot Tub': 650,
+        'Water Heater': 5,
+        'Air Purifier': 5
     };
 
 
+
     // Calculate the price for furniture
+// Define the price threshold
+    const priceThreshold = 100; // Example threshold, adjust as needed
+
+// Calculate the price for furniture
     const totalFurniturePrice = furnitureDetails.reduce((acc, item) => {
         const itemPrice = furniturePriceMap[item.item] || 0; // Default price is 0 if item is not in the map
-        return acc + (item.quantity * itemPrice);
+        const itemTotalPrice = item.quantity * itemPrice;
+
+        if (acc + itemTotalPrice > priceThreshold) {
+            // Calculate the amount above the threshold
+            const amountAboveThreshold = (acc + itemTotalPrice) - priceThreshold;
+            const adjustedItemTotalPrice = itemTotalPrice - amountAboveThreshold + (amountAboveThreshold * 0.3);
+            return acc + adjustedItemTotalPrice;
+        } else {
+            return acc + itemTotalPrice;
+        }
     }, 0);
 
-    // Calculate the price for appliances
+// Calculate the price for appliances
     const totalAppliancePrice = applianceDetails.reduce((acc, item) => {
         const itemPrice = appliancePriceMap[item.item] || 0; // Default price is 0 if item is not in the map
-        return acc + (item.quantity * itemPrice);
+        const itemTotalPrice = item.quantity * itemPrice;
+
+        if (acc + itemTotalPrice > priceThreshold) {
+            // Calculate the amount above the threshold
+            const amountAboveThreshold = (acc + itemTotalPrice) - priceThreshold;
+            const adjustedItemTotalPrice = itemTotalPrice - amountAboveThreshold + (amountAboveThreshold * 0.3);
+            return acc + adjustedItemTotalPrice;
+        } else {
+            return acc + itemTotalPrice;
+        }
     }, 0);
 
     // Add the furniture, appliance, and box costs to the total price
