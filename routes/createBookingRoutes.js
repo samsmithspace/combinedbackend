@@ -2,7 +2,7 @@
 const express = require('express');
 const Booking = require('../models/Booking');
 const axios = require('axios');
-const { calculateDistancePrice, calculatePrice} = require('../utils/helpers'); // Assuming you have helpers.js
+const { calculateDistancePrice, calculatePrice } = require('../utils/helpers'); // Assuming you have helpers.js
 
 const router = express.Router();
 // This is your test secret API key.
@@ -58,7 +58,6 @@ router.post('/:id/create-checkout-session-helper', async (req, res) => {
             mode: 'payment',
             success_url: `${YOUR_DOMAIN}/booking-result?bookingId=${bookingId}`,
             cancel_url: `${YOUR_DOMAIN}/payment-cancelled`,
-
         });
 
         res.status(200).send({ sessionId: session.id });
@@ -67,8 +66,6 @@ router.post('/:id/create-checkout-session-helper', async (req, res) => {
         res.status(500).send({ error: 'Error creating checkout session' });
     }
 });
-
-
 
 router.post('/:id/create-checkout-session', async (req, res) => {
     try {
@@ -98,7 +95,6 @@ router.post('/:id/create-checkout-session', async (req, res) => {
             mode: 'payment',
             success_url: `${YOUR_DOMAIN}/booking-result?bookingId=${bookingId}`,
             cancel_url: `${YOUR_DOMAIN}/payment-cancelled`,
-
         });
 
         res.status(200).send({ sessionId: session.id });
@@ -107,9 +103,6 @@ router.post('/:id/create-checkout-session', async (req, res) => {
         res.status(500).send({ error: 'Error creating checkout session' });
     }
 });
-
-
-
 
 router.post('/', async (req, res) => {
     try {
@@ -148,22 +141,52 @@ router.post('/', async (req, res) => {
             }
         };
 
+        // Get distances from the start and destination locations to the reference point
         const startDistance = await getDistanceFromAPI(startLocation, referencePoint);
         const destDistance = await getDistanceFromAPI(destinationLocation, referencePoint);
+
+        // Parse base price from environment variables
+        const basePrice = parseFloat(process.env.BASE_PRICE) || 0;
+
+        // Calculate distance price
         const distprice = calculateDistancePrice(startDistance, destDistance, distance);
 
-        let price = calculatePrice(details,false);
-        let helperprice = calculatePrice(details,true);
+        // Calculate initial prices using await
+        let price = await calculatePrice(details, false);
+        let helperprice = await calculatePrice(details, true);
 
-        price = Math.max(price, process.env.BASE_PRICE)+distprice;
-        helperprice = Math.max(helperprice, process.env.BASE_PRICE)+distprice;
+        // Debug logs for initial prices
+        console.log('Initial price:', price);
+        console.log('Initial helper price:', helperprice);
+        console.log('Base price from env:', process.env.BASE_PRICE, 'Parsed base price:', basePrice);
 
+        // Ensure price and helperprice are valid numbers
+        if (isNaN(price) || isNaN(helperprice)) {
+            throw new Error('Calculated price or helper price is not a valid number.');
+        }
+
+        // Add distance price and ensure minimum base price
+        price = Math.max(price, basePrice) + distprice;
+        helperprice = Math.max(helperprice, basePrice) + distprice;
+
+        // Apply any multipliers (e.g., for taxes or fees)
         price *= 1.2;
         helperprice *= 1.2;
 
+        // Debug logs after calculations
+        console.log('Price after calculations:', price);
+        console.log('Helper price after calculations:', helperprice);
+
+        // Round prices to two decimal places
         price = parseFloat(price.toFixed(2));
         helperprice = parseFloat(helperprice.toFixed(2));
 
+        // Ensure final prices are valid numbers
+        if (isNaN(price) || isNaN(helperprice)) {
+            throw new Error('Final price or helper price is not a valid number.');
+        }
+
+        // Create a new booking instance
         const newBooking = new Booking({
             startLocation,
             destinationLocation,
@@ -179,12 +202,14 @@ router.post('/', async (req, res) => {
             email
         });
 
+        // Save the booking to the database
         await newBooking.save();
+
+        // Send a success response with the new booking
         res.status(201).send({ message: 'Booking created', booking: newBooking });
     } catch (error) {
         console.error('Error creating booking:', error);
         res.status(400).send({ error: 'Error creating booking' });
     }
 });
-
 module.exports = router;
