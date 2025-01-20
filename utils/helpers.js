@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+const PriceItem = require('../models/PriceItem'); // Import the Mongoose model
+
 // Function to extract time strings from date strings
 function extractTimeStrings(dateStrings) {
     if (!dateStrings) {
@@ -16,14 +19,11 @@ function extractTimeStrings(dateStrings) {
         return `${hours}:${minutes}`;
     });
 }
-function countBoxesBySize(details) {
-    // Initialize variables to store the counts for each box size
-    let smallCount = 0;
-    let mediumCount = 0;
-    let largeCount = 0;
-    let extraLargeCount = 0;
 
-    // Iterate through the box details to count the number of boxes for each size
+// Function to count boxes by size
+function countBoxesBySize(details) {
+    let smallCount = 0, mediumCount = 0, largeCount = 0, extraLargeCount = 0;
+
     details.boxDetails.forEach(box => {
         switch (box.boxSize) {
             case 'small':
@@ -39,38 +39,32 @@ function countBoxesBySize(details) {
                 extraLargeCount += box.numberOfBoxes;
                 break;
             default:
-                // Handle any unexpected box sizes if needed
                 break;
         }
     });
 
-    // Return an array with the counts in the order: [small, medium, large, extraLarge]
     return [smallCount, mediumCount, largeCount, extraLargeCount];
 }
 
+// Function to calculate distance price
 function calculateDistancePrice(startDistance, destDistance, distance) {
-    // Extract the numeric value from the distance string
     const distanceValue = parseFloat(distance);
-
     let price = 0;
 
-    // Determine the price based on the given conditions
     if (startDistance < 5 && destDistance < 5) {
-        price = 0; // Both distances are less than 5 miles
+        price = 0;
     } else if (distanceValue > 5 && distanceValue < 20) {
-
         price = distanceValue * 1.6;
     } else if (distanceValue >= 20 && distanceValue < 60) {
-
         price = distanceValue * 1.6;
     } else if (distanceValue >= 60) {
         price = distanceValue * 1.6;
-
     }
 
     return price;
 }
-function calculatePrice(details, ishelper) {
+
+async function calculatePrice(details, isHelper) {
     const liftAvailable = details.liftAvailable;
     const numberOfStairs = details.numberOfStairs;
     const liftAvailableDest = details.liftAvailabledest;
@@ -79,118 +73,145 @@ function calculatePrice(details, ishelper) {
     const furnitureDetails = details.furnitureDetails || [];
     const applianceDetails = details.applianceDetails || [];
 
-    // Box price mapping
-    const boxPriceMap = {
-        small: ishelper ? 4.49 : 2.99,
-        medium: ishelper ? 5 : 3.69,
-        large: ishelper ? 6.8 : 4.5,
-        extraLarge: ishelper ? 25 : 15
+    const boxPriceMap = {};
+    const furniturePriceMap = {};
+    const appliancePriceMap = {};
+
+  //  console.log('Starting price calculation...');
+   // console.log('isHelper:', isHelper);
+   // console.log('Details:', JSON.stringify(details, null, 2));
+
+    // Fetch prices from the database
+    const priceItems = await PriceItem.find({});
+   // console.log('Fetched price items from database:', priceItems);
+
+    // Define mappings for box sizes (inverted)
+    const boxSizeMapping = {
+        'small': 'small',
+        'medium': 'medium',
+        'large': 'large',
+        'extraLarge': 'extraLarge'
     };
+
+    // Populate price maps with correct keys
+    priceItems.forEach(item => {
+        if (item.category === 'Box') {
+            // Get the sizeKey directly from the mapping
+            const sizeKey = boxSizeMapping[item.itemName];
+          //  console.log('Processing Box:', item.itemName);
+           // console.log('sizeKey:', sizeKey);
+            if (sizeKey) {
+                boxPriceMap[sizeKey] = isHelper ? item.helperPrice : item.normalPrice;
+              //  console.log(`Set boxPriceMap[${sizeKey}] = ${boxPriceMap[sizeKey]}`);
+            } else {
+                console.warn(`Warning: Unknown box size '${item.itemName}'`);
+            }
+        } else if (item.category === 'Furniture') {
+            // Use helperPrice or normalPrice based on isHelper flag
+            furniturePriceMap[item.itemName] = isHelper ? item.helperPrice : item.normalPrice;
+        //    console.log(`Set furniturePriceMap['${item.itemName}'] = ${furniturePriceMap[item.itemName]}`);
+        } else if (item.category === 'Appliances') {
+            // Use helperPrice or normalPrice based on isHelper flag
+            appliancePriceMap[item.itemName] = isHelper ? item.helperPrice : item.normalPrice;
+        //    console.log(`Set appliancePriceMap['${item.itemName}'] = ${appliancePriceMap[item.itemName]}`);
+        } else {
+            console.warn(`Warning: Unknown category '${item.category}' for item '${item.itemName}'`);
+        }
+    });
+
+   // console.log('boxPriceMap:', boxPriceMap);
+   // console.log('furniturePriceMap:', furniturePriceMap);
+   // console.log('appliancePriceMap:', appliancePriceMap);
 
     // Count boxes by size
     const [smallBoxes, mediumBoxes, largeBoxes, extraLargeBoxes] = countBoxesBySize(details);
+    console.log('Box counts:', { smallBoxes, mediumBoxes, largeBoxes, extraLargeBoxes });
 
     // Calculate box price
     const boxPrice =
-        (smallBoxes * boxPriceMap.small) +
-        (mediumBoxes * boxPriceMap.medium) +
-        (largeBoxes * boxPriceMap.large) +
-        (extraLargeBoxes * boxPriceMap.extraLarge);
+        (smallBoxes * (boxPriceMap['small'] || 0)) +
+        (mediumBoxes * (boxPriceMap['medium'] || 0)) +
+        (largeBoxes * (boxPriceMap['large'] || 0)) +
+        (extraLargeBoxes * (boxPriceMap['extraLarge'] || 0));
 
-    // Base price calculation for stairs and lifts
+    console.log('small boxes:', boxPrice);
+
     let price = 0;
 
+    // Base price for stairs and lifts
     if (numberOfStairs === 0 && numberOfStairsRight === 0) {
         price = 0;
+        console.log('No stairs at both locations. Base price:', price);
     } else if (liftAvailable && liftAvailableDest) {
         price = 15;
+        console.log('Lift available at both locations. Base price:', price);
     } else if ((liftAvailable && !liftAvailableDest) || (!liftAvailable && liftAvailableDest)) {
-        if((numberOfStairsRight === 0 &&liftAvailable)||(numberOfStairs === 0 &&liftAvailableDest)){
+        console.log('Lift available at one location.');
+        if ((numberOfStairsRight === 0 && liftAvailable) || (numberOfStairs === 0 && liftAvailableDest)) {
             price = 15;
-        }else{
-            price = (liftAvailable ? numberOfStairsRight : numberOfStairs) * 15;
+            console.log('No stairs at the location without lift. Base price:', price);
+        } else {
+            const stairsCount = liftAvailable ? numberOfStairsRight : numberOfStairs;
+            price = stairsCount * 15;
+            console.log('Stairs at the location without lift. Stairs count:', stairsCount, 'Base price:', price);
         }
-
     } else {
         price = (numberOfStairs + numberOfStairsRight) * 15;
+        console.log('No lifts available. Total stairs:', numberOfStairs + numberOfStairsRight, 'Base price:', price);
     }
 
-    // Furniture price mapping (you can adjust prices as needed)
-    const furniturePriceMap = {
-        'Sofa (2-Seater)': 50,
-        'Sofa (3-Seater)': 60,
-        'Sofa (L-Shaped)': 80,
-        'Armchair': 30,
-        'Dining Table': 45,
-        'Single Bed': 40,
-        'Double Bed': 50,
-        'Queen Bed': 60,
-        'King Bed': 70,
-        'Bunk Bed': 65,
-        'Wardrobe (Single Door)': 35,
-        'Wardrobe (Double Door)': 50,
-        'Wardrobe (Sliding Door)': 55,
-        'Bookcase (Small)': 20,
-        'Bookcase (Large)': 30,
-        'Desk': 25,
-        'Nightstand': 15,
-        'Cabinet': 30,
-        'Ottoman': 15,
-        'TV Stand': 20,
-        'Office Chair': 15,
-        'Dining Chair': 10,
-        'Mirror (Large)': 15,
-        'Mirror (Small)': 10,
-        'Rug (Large)': 20,
-        'Rug (Small)': 10,
-        'Exercise Equipment': 40,
-        'Piano': 100,
-        'Bicycle': 25,
-        'Motorcycle': 150,
-        'Ladder': 10,
-    };
+    // Define the price threshold
+    const priceThreshold = 100; // Adjust the threshold as needed
+    console.log('Price threshold:', priceThreshold);
 
+    // Calculate the price for furniture with threshold logic
+    let totalFurniturePrice = 0;
+    totalFurniturePrice = furnitureDetails.reduce((acc, item) => {
+        const itemPrice = furniturePriceMap[item.item] || 0;
+        const itemTotalPrice = item.quantity * itemPrice;
+        console.log(`Calculating price for furniture item '${item.item}'`);
+        console.log('Item price:', itemPrice, 'Quantity:', item.quantity, 'Item total price:', itemTotalPrice);
 
-    // Appliance price mapping (you can adjust prices as needed)
-    const appliancePriceMap = {
-        'Refrigerator (Mini)': 30,
-        'Refrigerator (Standard)': 50,
-        'Refrigerator (French Door)': 70,
-        'Washing Machine': 40,
-        'Microwave': 15,
-        'Oven': 40,
-        'Dishwasher': 35,
-        'Stove': 40,
-        'Television (Under 32")': 20,
-        'Television (32"-50")': 30,
-        'Television (Over 50")': 50,
-        'Stereo System': 25,
-        'Monitor': 15,
-        'Lawn Mower': 30,
-        'Hot Tub': 100,
-        'Water Heater': 50,
-        'Air Purifier': 15,
-    };
-
-
-    // Calculate the price for furniture
-    const totalFurniturePrice = furnitureDetails.reduce((acc, item) => {
-        const itemPrice = furniturePriceMap[item.item] || 0; // Default price is 0 if item is not in the map
-        return acc + (item.quantity * itemPrice);
+        if (acc + itemTotalPrice > priceThreshold) {
+            const amountAboveThreshold = (acc + itemTotalPrice) - priceThreshold;
+            const adjustedItemTotalPrice = itemTotalPrice - amountAboveThreshold + (amountAboveThreshold * 0.3);
+            console.log('Amount above threshold for furniture:', amountAboveThreshold);
+            console.log('Adjusted item total price for furniture:', adjustedItemTotalPrice);
+            return acc + adjustedItemTotalPrice;
+        } else {
+            return acc + itemTotalPrice;
+        }
     }, 0);
 
-    // Calculate the price for appliances
-    const totalAppliancePrice = applianceDetails.reduce((acc, item) => {
-        const itemPrice = appliancePriceMap[item.item] || 0; // Default price is 0 if item is not in the map
-        return acc + (item.quantity * itemPrice);
+    console.log('Total furniture price:', totalFurniturePrice);
+
+    // Calculate the price for appliances with threshold logic
+    let totalAppliancePrice = 0;
+    totalAppliancePrice = applianceDetails.reduce((acc, item) => {
+        const itemPrice = appliancePriceMap[item.item] || 0;
+        const itemTotalPrice = item.quantity * itemPrice;
+        console.log(`Calculating price for appliance item '${item.item}'`);
+        console.log('Item price:', itemPrice, 'Quantity:', item.quantity, 'Item total price:', itemTotalPrice);
+
+        if (acc + itemTotalPrice > priceThreshold) {
+            const amountAboveThreshold = (acc + itemTotalPrice) - priceThreshold;
+            const adjustedItemTotalPrice = itemTotalPrice - amountAboveThreshold + (amountAboveThreshold * 0.3);
+            console.log('Amount above threshold for appliances:', amountAboveThreshold);
+            console.log('Adjusted item total price for appliances:', adjustedItemTotalPrice);
+            return acc + adjustedItemTotalPrice;
+        } else {
+            return acc + itemTotalPrice;
+        }
     }, 0);
 
-    // Add the furniture, appliance, and box costs to the total price
+    console.log('Total appliance price:', totalAppliancePrice);
+
+    // Add up all the prices
     price += totalFurniturePrice + totalAppliancePrice + boxPrice;
+    console.log('Final calculated price:', price);
 
     return price;
 }
-
 
 module.exports = {
     extractTimeStrings,
