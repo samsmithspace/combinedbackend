@@ -208,9 +208,17 @@ async function calculatePrice(details, isHelper) {
 
     // Add up all the prices
     price += totalFurniturePrice + totalAppliancePrice + boxPrice;
+
+    if (price > 180) {
+        price *= 0.85; // Apply 15% discount
+    } else if (price > 90) {
+        price *= 0.90; // Apply 10% discount
+    }
+
     console.log('Final calculated price:', price);
 
     return price;
+
 }
 
 module.exports = {
