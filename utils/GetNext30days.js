@@ -1,18 +1,6 @@
 function getDatesInNext30Days(weekdaysOff, specificDatesOff) {
     const result = new Set(specificDatesOff); // Use a set to avoid duplicate dates
     const currentDate = new Date();
-    /*
-    const dayMap = {
-        "Sunday": 0,
-        "Monday": 1,
-        "Tuesday": 2,
-        "Wednesday": 3,
-        "Thursday": 4,
-        "Friday": 5,
-        "Saturday": 6
-    };
-
-     */
 
     // Loop through the next 30 days
     for (let i = 0; i < 60; i++) {

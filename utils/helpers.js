@@ -215,6 +215,10 @@ async function calculatePrice(details, isHelper) {
         price *= 0.90; // Apply 10% discount
     }
 
+    if(isHelper){
+        price*=1.1;
+    }
+
     console.log('Final calculated price:', price);
 
     return price;
