@@ -32,10 +32,13 @@ router.get('/:bookingId', async (req, res) => {
 
 router.post('/:id/create-checkout-session-helper', async (req, res) => {
     try {
-        const bookingId = req.params.id;
+        const { bookingId, amount, lang } = req.body;
 
-        const booking = await Booking.findById(bookingId);
+// If bookingId is an object, like { id: '...' }, fix it:
+        const realBookingId = typeof bookingId === 'object' && bookingId.id ? bookingId.id : bookingId;
 
+// Then use realBookingId
+        const booking = await Booking.findById(realBookingId);
         if (!booking) {
             return res.status(404).send({ error: 'Booking not found' });
         }
@@ -56,8 +59,8 @@ router.post('/:id/create-checkout-session-helper', async (req, res) => {
                 },
             ],
             mode: 'payment',
-            success_url: `${YOUR_DOMAIN}/booking-result?bookingId=${bookingId}`,
-            cancel_url: `${YOUR_DOMAIN}/payment-cancelled`,
+            success_url: `${YOUR_DOMAIN}/${lang}/booking-result?bookingId=${bookingId}`,
+            cancel_url: `${YOUR_DOMAIN}/${lang}/payment-cancelled`,
         });
 
         res.status(200).send({ sessionId: session.id });
@@ -69,10 +72,17 @@ router.post('/:id/create-checkout-session-helper', async (req, res) => {
 
 router.post('/:id/create-checkout-session', async (req, res) => {
     try {
-        const bookingId = req.params.id;
 
-        const booking = await Booking.findById(bookingId);
+        const { bookingId, amount, lang } = req.body;
 
+// If bookingId is an object, like { id: '...' }, fix it:
+        const realBookingId = typeof bookingId === 'object' && bookingId.id ? bookingId.id : bookingId;
+
+// Then use realBookingId
+        const booking = await Booking.findById(realBookingId);
+        if (!booking) {
+            return res.status(404).send({ error: 'Booking not found' });
+        }
         if (!booking) {
             return res.status(404).send({ error: 'Booking not found' });
         }
@@ -93,8 +103,8 @@ router.post('/:id/create-checkout-session', async (req, res) => {
                 },
             ],
             mode: 'payment',
-            success_url: `${YOUR_DOMAIN}/booking-result?bookingId=${bookingId}`,
-            cancel_url: `${YOUR_DOMAIN}/payment-cancelled`,
+            success_url: `${YOUR_DOMAIN}/${lang}/booking-result?bookingId=${bookingId}`,
+            cancel_url: `${YOUR_DOMAIN}/${lang}/payment-cancelled`,
         });
 
         res.status(200).send({ sessionId: session.id });
