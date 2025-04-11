@@ -179,6 +179,11 @@ router.post('/', async (req, res) => {
         price = Math.max(price, basePrice) + distprice;
         helperprice = Math.max(helperprice, basePrice) + distprice;
 
+
+        if(helperprice<=300){
+            helperprice *= 1.3;
+        }
+
         // Apply any multipliers (e.g., for taxes or fees)
         price *= 1.2;
         helperprice *= 1.2;
