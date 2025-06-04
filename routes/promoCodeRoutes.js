@@ -94,12 +94,19 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.post('/:id/apply-promo', async (req, res) => {
-    const bookingId = req.params.id;
+// Fixed backend route for promo code application
+router.post('/:bookingId/apply-promo', async (req, res) => {
+    // FIX 1: Use the correct parameter name
+    const bookingId = req.params.bookingId; // Changed from req.params.id
     const { promoCode } = req.body;
 
-    if (promoCode.length !== 6) {
-        return res.status(400).send({ error: 'Invalid promotion code. It must be exactly 6 characters long.' });
+    console.log("Apply promo - bookingId:", bookingId, "promoCode:", promoCode);
+
+    if (!promoCode || promoCode.length !== 6) {
+        return res.status(400).json({
+            success: false,
+            error: 'Invalid promotion code. It must be exactly 6 characters long.'
+        });
     }
 
     try {
@@ -107,20 +114,29 @@ router.post('/:id/apply-promo', async (req, res) => {
         const promptCode = await PromptCode.findOne({ codeName: promoCode.toUpperCase() });
 
         if (!promptCode) {
-            return res.status(400).send({ error: 'Invalid promotion code' });
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid promotion code'
+            });
         }
 
-        const discountPercent = promptCode.discountPercent; // Assuming you add a `discountPercent` field to the PromptCode schema
+        const discountPercent = promptCode.discountPercent;
 
         // Find the booking by ID
         const booking = await Booking.findById(bookingId);
         if (!booking) {
-            return res.status(404).send({ error: 'Booking not found' });
+            return res.status(404).json({
+                success: false,
+                error: 'Booking not found'
+            });
         }
 
         // Check if a promo code has already been applied
         if (booking.promoCodeApplied) {
-            return res.status(400).send({ error: 'A promo code has already been applied to this booking.' });
+            return res.status(400).json({
+                success: false,
+                error: 'A promo code has already been applied to this booking.'
+            });
         }
 
         // Remove VAT (divide by 1.2)
@@ -132,24 +148,35 @@ router.post('/:id/apply-promo', async (req, res) => {
         const discountedHelperPrice = originalHelperPrice * (1 - discountPercent / 100);
 
         // Add VAT back
-        booking.price = parseFloat((discountedPrice * 1.2).toFixed(2));
-        booking.helperprice = parseFloat((discountedHelperPrice * 1.2).toFixed(2));
+        const newPrice = parseFloat((discountedPrice * 1.2).toFixed(2));
+        const newHelperPrice = parseFloat((discountedHelperPrice * 1.2).toFixed(2));
 
-        // Mark the promo code as applied
+        // Update booking
+        booking.price = newPrice;
+        booking.helperprice = newHelperPrice;
         booking.promoCodeApplied = true;
+        booking.appliedPromoCode = promoCode.toUpperCase(); // Optional: track which code was used
 
         // Save the updated booking
         await booking.save();
 
-        res.status(200).send({
+        // FIX 2: Return response in the format expected by frontend
+        res.status(200).json({
+            success: true,
             message: `Promo code applied! You received a ${discountPercent}% discount.`,
             discount: discountPercent,
-            discountedPrice: booking.price,
-            discountedHelperPrice: booking.helperprice,
+            newPrice: newPrice,           // Frontend expects 'newPrice'
+            newHelperPrice: newHelperPrice, // Frontend expects 'newHelperPrice'
+            // Legacy fields for backward compatibility
+            discountedPrice: newPrice,
+            discountedHelperPrice: newHelperPrice,
         });
     } catch (error) {
         console.error('Error applying promo code:', error);
-        res.status(500).send({ error: 'Internal Server Error' });
+        res.status(500).json({
+            success: false,
+            error: 'Internal Server Error'
+        });
     }
 });
 

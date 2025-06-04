@@ -1,4 +1,4 @@
-const { MailerSend, EmailParams, Sender, Recipient } = require('mailersend');
+const axios = require('axios');
 const hbs = require('hbs');
 const fs = require('fs');
 const path = require('path');
@@ -10,29 +10,60 @@ const template = fs.readFileSync(templatePath, 'utf-8');
 // Define the sendEmail function
 const sendEmail = async (data) => {
     try {
-        const mailerSend = new MailerSend({
-            apiKey: 'mlsn.46499151b1bbbc49eb4fabc1805cde2e4702ba546dc8a0a70f7af20271e26990', // Use your API key stored in environment variables
-        });
-
-        const sentFrom = new Sender("info@trial-ynrw7gyp9wjg2k8e.mlsender.net", "eremovals");
-
-        const recipients = [new Recipient(data.driveremail, data.drivername)];
-
         // Render the template with Handlebars and dynamic data
         const htmlContent = hbs.handlebars.compile(template)(data);
 
-        const emailParams = new EmailParams()
-            .setFrom(sentFrom)
-            .setTo(recipients)
-            .setReplyTo(sentFrom)
-            .setSubject("New Removal Job Assigned to You")
-            .setHtml(htmlContent)
-            .setText("You have a new job assigned");
+        // Brevo API endpoint
+        const url = 'https://api.brevo.com/v3/smtp/email';
 
-        await mailerSend.email.send(emailParams);
+        // Email payload for Brevo
+        const emailData = {
+            sender: {
+                name: "Eremovals",
+                email: process.env.SENDER_EMAIL // ← From environment variable
+            },
+            to: [
+                {
+                    email: data.driveremail,
+                    name: data.drivername
+                }
+            ],
+            subject: "New Removal Job Assigned to You",
+            htmlContent: htmlContent,
+            textContent: "You have a new job assigned"
+        };
+
+        // Headers for Brevo API
+        const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': process.env.BREVO_API_KEY // Your Brevo API key
+        };
+
+        // Send the email
+        const response = await axios.post(url, emailData, { headers });
+
         console.log('Email sent successfully!');
+        console.log('Message ID:', response.data.messageId);
+
+        console.log('API Key loaded:', process.env.BREVO_API_KEY ? 'Yes' : 'No');
+        console.log('Sender Email loaded:', process.env.SENDER_EMAIL ? 'Yes' : 'No');
+
+        if (!process.env.BREVO_API_KEY) {
+            console.error('BREVO_API_KEY environment variable is not set!');
+            return;
+        }
+
+        if (!process.env.SENDER_EMAIL) {
+            console.error('SENDER_EMAIL environment variable is not set!');
+            return;
+        }
+
+        return response.data;
+
     } catch (error) {
-        console.error('Failed to send email:', error);
+        console.error('Failed to send email:', error.response?.data || error.message);
+        throw error;
     }
 };
 
