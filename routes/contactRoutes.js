@@ -44,8 +44,6 @@ router.post('/:id/send', async (req, res) => {
             return res.status(404).send({ error: 'Booking not found' });
         }
 
-
-
         const boxsizes = countBoxesBySize(updatedBooking.details);
 
         const jobData = {

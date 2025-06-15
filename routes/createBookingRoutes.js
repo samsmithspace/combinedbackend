@@ -154,12 +154,14 @@ router.post('/', async (req, res) => {
         // Get distances from the start and destination locations to the reference point
         const startDistance = await getDistanceFromAPI(startLocation, referencePoint);
         const destDistance = await getDistanceFromAPI(destinationLocation, referencePoint);
-
+        const dest = await getDistanceFromAPI(startLocation, destinationLocation);
         // Parse base price from environment variables
         const basePrice = parseFloat(process.env.BASE_PRICE) || 0;
-
+        console.log("Calculate distance price")
+        console.log(startDistance, destDistance, dest)
+        console.log("******************")
         // Calculate distance price
-        const distprice = calculateDistancePrice(startDistance, destDistance, distance);
+        const distprice = calculateDistancePrice(startDistance, destDistance, dest);
 
         // Calculate initial prices using await
         let price = await calculatePrice(details, false);
@@ -169,6 +171,8 @@ router.post('/', async (req, res) => {
         console.log('Initial price:', price);
         console.log('Initial helper price:', helperprice);
         console.log('Base price from env:', process.env.BASE_PRICE, 'Parsed base price:', basePrice);
+
+        console.log("distance price", distprice)
 
         // Ensure price and helperprice are valid numbers
         if (isNaN(price) || isNaN(helperprice)) {

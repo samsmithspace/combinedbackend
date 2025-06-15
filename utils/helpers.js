@@ -21,6 +21,7 @@ function extractTimeStrings(dateStrings) {
 }
 
 // Function to count boxes by size
+// Function to count boxes by size
 function countBoxesBySize(details) {
     let smallCount = 0, mediumCount = 0, largeCount = 0, extraLargeCount = 0;
 
@@ -32,13 +33,16 @@ function countBoxesBySize(details) {
             case 'medium':
                 mediumCount += box.numberOfBoxes;
                 break;
-            case 'large (or heavier than 20 kg)':
+            case 'large':
+            case 'large (or heavier than 20 kg)': // Support both formats
                 largeCount += box.numberOfBoxes;
                 break;
-            case 'Extra large':
+            case 'extraLarge':
+            case 'Extra large': // Support both formats
                 extraLargeCount += box.numberOfBoxes;
                 break;
             default:
+                console.warn(`Unknown box size: ${box.boxSize}`);
                 break;
         }
     });
@@ -124,6 +128,10 @@ async function calculatePrice(details, isHelper) {
    // console.log('appliancePriceMap:', appliancePriceMap);
 
     // Count boxes by size
+    console.log("here is the booking detail");
+    console.log(details);
+    console.log("-----------------");
+
     const [smallBoxes, mediumBoxes, largeBoxes, extraLargeBoxes] = countBoxesBySize(details);
     console.log('Box counts:', { smallBoxes, mediumBoxes, largeBoxes, extraLargeBoxes });
 
@@ -134,7 +142,7 @@ async function calculatePrice(details, isHelper) {
         (largeBoxes * (boxPriceMap['large'] || 0)) +
         (extraLargeBoxes * (boxPriceMap['extraLarge'] || 0));
 
-    console.log('small boxes:', boxPrice);
+    console.log('boxes price:', boxPrice);
 
     let price = 0;
 
