@@ -6,10 +6,12 @@ const connectDB = require('./config/db');
 
 // Import your route files
 const driverRoutes = require('./routes/driverRoutes');
-const bookingRoutes = require('./routes/createBookingRoutes'); // Import the new booking creation route
-const contactRoutes = require('./routes/contactRoutes'); // Import the new contact route
-const promoCodeRoutes = require('./routes/promoCodeRoutes'); // Import the new promo code route
+const bookingRoutes = require('./routes/createBookingRoutes');
+const contactRoutes = require('./routes/contactRoutes');
+const promoCodeRoutes = require('./routes/promoCodeRoutes');
 const priceItemRoutes = require('./routes/priceItem');
+const managerNotificationRoutes = require('./routes/managerNotificationRoutes'); // New route
+
 // Initialize Express
 const app = express();
 const allowedOrigins = [
@@ -33,15 +35,12 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-
-
-
-
 // Routes
 app.use('/api/price-item', priceItemRoutes);
-app.use('/api/driver', driverRoutes);          // Driver-related routes
-app.use('/api/bookings', bookingRoutes);       // Booking creation-related routes
-app.use('/api/bookings', contactRoutes);       // Contact update-related routes under bookings
-app.use('/api/promocode', promoCodeRoutes);    // Promo code-related routes
+app.use('/api/driver', driverRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/bookings', contactRoutes);
+app.use('/api/promocode', promoCodeRoutes);
+app.use('/api/manager', managerNotificationRoutes); // New manager notification routes
 
 module.exports = app;

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Customer Inquiry - Eremovals</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .header .emoji {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .section h3 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .info-item strong {
+            color: #495057;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-item span {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .contact-info {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .contact-info h3 {
+            color: white;
+            margin-top: 0;
+        }
+        .contact-button {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 5px 10px 5px 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .contact-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .price-highlight {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .price-highlight h3 {
+            color: white;
+            margin-top: 0;
+        }
+        .price-amount {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .items-list {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .items-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .items-list li {
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        .items-list li:last-child {
+            border-bottom: none;
+        }
+        .timestamp {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: white;
+            color: #667eea;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        @media (max-width: 600px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="emoji">🏠</div>
+        <h1>New Customer Inquiry</h1>
+        <p>A potential customer is interested in your removal services</p>
+    </div>
+
+    <div class="contact-info">
+        <h3>📞 Customer Contact Information</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Customer Name</strong>
+                <span>{{customerName}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Phone Number</strong>
+                <span>{{customerPhone}}</span>
+            </div>
+        </div>
+        <div class="info-item">
+            <strong>Email Address</strong>
+            <span>{{customerEmail}}</span>
+        </div>
+        <div style="margin-top: 15px;">
+            <a href="tel:{{customerPhone}}" class="contact-button">📞 Call Now</a>
+            {{#if customerEmail}}
+                {{#unless (eq customerEmail 'Not provided')}}
+                    <a href="mailto:{{customerEmail}}" class="contact-button">✉️ Send Email</a>
+                {{/unless}}
+            {{/if}}
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>📍 Move Details</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>From Location</strong>
+                <span>{{startLocation}}</span>
+            </div>
+            <div class="info-item">
+                <strong>To Location</strong>
+                <span>{{destinationLocation}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Move Date</strong>
+                <span>{{moveDate}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Preferred Time</strong>
+                <span>{{moveTime}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Move Type</strong>
+                <span>{{moveType}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="price-highlight">
+        <h3>💰 Estimated Pricing</h3>
+        <div class="info-grid">
+            <div>
+                <div class="price-amount">£{{estimatedPrice}}</div>
+                <div>Standard Service</div>
+            </div>
+            <div>
+                <div class="price-amount">£{{estimatedPriceWithHelper}}</div>
+                <div>With Helper</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>📦 Items Summary</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Small Boxes</strong>
+                <span>{{smallBoxes}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Medium Boxes</strong>
+                <span>{{mediumBoxes}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Large Boxes</strong>
+                <span>{{largeBoxes}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Extra Large Boxes</strong>
+                <span>{{extraLargeBoxes}}</span>
+            </div>
+        </div>
+
+        {{#if furnitureDetails}}
+            {{#if furnitureDetails.length}}
+                <h4>🪑 Furniture Items</h4>
+                <div class="items-list">
+                    <ul>
+                        {{#each furnitureDetails}}
+                            <li><strong>{{item}}</strong> - Quantity: {{quantity}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+            {{/if}}
+        {{/if}}
+
+        {{#if applianceDetails}}
+            {{#if applianceDetails.length}}
+                <h4>🏠 Appliances</h4>
+                <div class="items-list">
+                    <ul>
+                        {{#each applianceDetails}}
+                            <li><strong>{{item}}</strong> - Quantity: {{quantity}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+            {{/if}}
+        {{/if}}
+    </div>
+
+    <div class="section">
+        <h3>🏢 Location Details</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Lift at Start</strong>
+                <span>{{liftAvailable}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Stairs at Start</strong>
+                <span>{{numberOfStairs}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Lift at Destination</strong>
+                <span>{{liftAvailableDest}}</span>
+            </div>
+            <div class="info-item">
+                <strong>Stairs at Destination</strong>
+                <span>{{numberOfStairsRight}}</span>
+            </div>
+        </div>
+    </div>
+
+    {{#if additionalNotes}}
+        {{#unless (eq additionalNotes 'None')}}
+            <div class="section">
+                <h3>📝 Additional Notes</h3>
+                <div class="info-item">
+                    <span>{{additionalNotes}}</span>
+                </div>
+            </div>
+        {{/unless}}
+    {{/if}}
+
+    <div class="cta-section">
+        <h3>🎯 Next Steps</h3>
+        <p>Contact the customer to discuss their requirements and negotiate the best deal</p>
+        <a href="tel:{{customerPhone}}" class="cta-button">📞 Call Customer</a>
+        {{#if customerEmail}}
+            {{#unless (eq customerEmail 'Not provided')}}
+                <a href="mailto:{{customerEmail}}" class="cta-button">✉️ Email Customer</a>
+            {{/unless}}
+        {{/if}}
+    </div>
+
+    <div class="timestamp">
+        <p>📅 Inquiry received on {{inquiryDate}} at {{inquiryTime}}</p>
+        <p><em>Eremovals Customer Inquiry System</em></p>
+    </div>
+</div>
+</body>
+</html>

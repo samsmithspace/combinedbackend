@@ -14,6 +14,7 @@ const YOUR_DOMAIN = process.env.DOM;
 // Route to fetch booking details by booking ID
 router.get('/:bookingId', async (req, res) => {
     try {
+        console.log("check booking details");
         const bookingId = req.params.bookingId;
 
         // Fetch the booking details using the booking ID
@@ -24,6 +25,7 @@ router.get('/:bookingId', async (req, res) => {
         }
 
         res.status(200).send({ booking });
+        console.log(booking);
     } catch (error) {
         console.error('Error fetching booking:', error);
         res.status(500).send({ error: 'Error fetching booking' });
