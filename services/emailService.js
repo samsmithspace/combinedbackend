@@ -4,6 +4,19 @@ const hbs = require('hbs');
 const fs = require('fs');
 const path = require('path');
 
+// Register Handlebars helpers
+hbs.registerHelper('eq', function(a, b) {
+    return a === b;
+});
+
+hbs.registerHelper('unless', function(conditional, options) {
+    if (!conditional) {
+        return options.fn(this);
+    } else {
+        return options.inverse(this);
+    }
+});
+
 // Load the original template file
 const templatePath = path.join(__dirname, '../views/jobDetails.hbs');
 const template = fs.readFileSync(templatePath, 'utf-8');
