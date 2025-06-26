@@ -5,138 +5,212 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Customer Inquiry - Eremovals</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f7fa;
             color: #333;
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
         }
+
         .container {
             background-color: #fff;
-            padding: 30px;
+            padding: 20px;
             max-width: 900px;
             margin: 0 auto;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
+
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 8px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
+
         .header h1 {
             margin: 0;
-            font-size: 28px;
+            font-size: clamp(20px, 5vw, 28px);
             font-weight: 300;
         }
+
         .header .emoji {
-            font-size: 40px;
+            font-size: clamp(30px, 8vw, 40px);
             margin-bottom: 10px;
         }
+
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: clamp(14px, 3vw, 16px);
+            opacity: 0.9;
+        }
+
         .section {
-            margin: 25px 0;
-            padding: 20px;
+            margin: 20px 0;
+            padding: 15px;
             background-color: #f8f9fa;
             border-radius: 8px;
             border-left: 4px solid #667eea;
         }
+
         .section h3 {
             color: #667eea;
             margin-top: 0;
-            font-size: 20px;
+            font-size: clamp(16px, 4vw, 20px);
             font-weight: 600;
         }
+
+        .section h4 {
+            color: #667eea;
+            margin: 15px 0 10px 0;
+            font-size: clamp(14px, 3.5vw, 18px);
+            font-weight: 600;
+        }
+
         .info-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 12px;
             margin: 15px 0;
         }
+
         .info-item {
             background: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
             border: 1px solid #e9ecef;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
+
         .info-item strong {
             color: #495057;
             display: block;
             margin-bottom: 5px;
-            font-size: 14px;
+            font-size: clamp(12px, 2.5vw, 14px);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .info-item span {
             color: #667eea;
             font-weight: 600;
-            font-size: 16px;
+            font-size: clamp(14px, 3vw, 16px);
+            word-break: break-word;
         }
+
         .contact-info {
             background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             margin: 20px 0;
         }
+
         .contact-info h3 {
             color: white;
             margin-top: 0;
+            font-size: clamp(16px, 4vw, 20px);
         }
+
+        .contact-buttons {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .contact-button {
             display: inline-block;
             background-color: rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px;
             text-decoration: none;
             border-radius: 25px;
-            margin: 5px 10px 5px 0;
             border: 2px solid rgba(255, 255, 255, 0.3);
             transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+            word-break: break-word;
         }
+
         .contact-button:hover {
             background-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
+
         .price-highlight {
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
             color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             text-align: center;
             margin: 20px 0;
         }
+
         .price-highlight h3 {
             color: white;
             margin-top: 0;
+            font-size: clamp(16px, 4vw, 20px);
         }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .price-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
         .price-amount {
-            font-size: 24px;
+            font-size: clamp(20px, 5vw, 24px);
             font-weight: bold;
-            margin: 10px 0;
+            margin: 5px 0;
         }
+
+        .price-label {
+            font-size: clamp(12px, 3vw, 14px);
+            opacity: 0.9;
+        }
+
         .items-list {
             background: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
             margin: 10px 0;
         }
+
         .items-list ul {
             margin: 0;
-            padding-left: 20px;
+            padding-left: 15px;
         }
+
         .items-list li {
             margin: 8px 0;
             padding: 5px 0;
             border-bottom: 1px solid #f1f3f4;
+            font-size: clamp(13px, 3vw, 15px);
+            word-wrap: break-word;
         }
+
         .items-list li:last-child {
             border-bottom: none;
         }
+
         .timestamp {
             text-align: center;
             color: #6c757d;
@@ -144,37 +218,182 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #e9ecef;
+            font-size: clamp(12px, 2.5vw, 14px);
         }
+
         .cta-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 8px;
             text-align: center;
             margin: 30px 0;
         }
+
+        .cta-section h3 {
+            margin-top: 0;
+            font-size: clamp(16px, 4vw, 20px);
+        }
+
+        .cta-section p {
+            font-size: clamp(13px, 3vw, 15px);
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
         .cta-button {
             display: inline-block;
             background-color: white;
             color: #667eea;
-            padding: 15px 30px;
+            padding: 12px 25px;
             text-decoration: none;
             border-radius: 25px;
             font-weight: 600;
-            margin: 10px;
             transition: all 0.3s ease;
+            text-align: center;
+            min-width: 200px;
+            font-size: clamp(13px, 3vw, 15px);
         }
+
         .cta-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        @media (max-width: 600px) {
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-            .container {
+
+        /* Tablet styles */
+        @media (min-width: 600px) {
+            body {
                 padding: 20px;
-                margin: 10px;
+            }
+
+            .container {
+                padding: 30px;
+            }
+
+            .header {
+                padding: 25px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .contact-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+
+            .contact-button {
+                flex: 0 1 auto;
+                min-width: auto;
+            }
+
+            .price-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .contact-info,
+            .price-highlight {
+                padding: 20px;
+            }
+
+            .cta-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .cta-button {
+                min-width: auto;
+                margin: 0 10px;
+            }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 900px) {
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .header .emoji {
+                font-size: 40px;
+            }
+
+            .section h3 {
+                font-size: 20px;
+            }
+
+            .info-item strong {
+                font-size: 14px;
+            }
+
+            .info-item span {
+                font-size: 16px;
+            }
+
+            .price-amount {
+                font-size: 24px;
+            }
+        }
+
+        /* Large desktop styles */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1000px;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                max-width: none;
+            }
+
+            .contact-button,
+            .cta-button {
+                display: none;
+            }
+
+            .header,
+            .contact-info,
+            .price-highlight,
+            .cta-section {
+                background: #f0f0f0 !important;
+                color: #333 !important;
+            }
+
+            .header h1,
+            .contact-info h3,
+            .price-highlight h3,
+            .cta-section h3 {
+                color: #333 !important;
             }
         }
     </style>
@@ -203,7 +422,7 @@
             <strong>Email Address</strong>
             <span>{{customerEmail}}</span>
         </div>
-        <div style="margin-top: 15px;">
+        <div class="contact-buttons">
             <a href="tel:{{customerPhone}}" class="contact-button">📞 Call Now</a>
             {{#if customerEmail}}
                 {{#unless (eq customerEmail 'Not provided')}}
@@ -241,14 +460,14 @@
 
     <div class="price-highlight">
         <h3>💰 Estimated Pricing</h3>
-        <div class="info-grid">
-            <div>
+        <div class="price-grid">
+            <div class="price-item">
                 <div class="price-amount">£{{estimatedPrice}}</div>
-                <div>Standard Service</div>
+                <div class="price-label">Standard Service</div>
             </div>
-            <div>
+            <div class="price-item">
                 <div class="price-amount">£{{estimatedPriceWithHelper}}</div>
-                <div>With Helper</div>
+                <div class="price-label">With Helper</div>
             </div>
         </div>
     </div>
@@ -337,12 +556,14 @@
     <div class="cta-section">
         <h3>🎯 Next Steps</h3>
         <p>Contact the customer to discuss their requirements and negotiate the best deal</p>
-        <a href="tel:{{customerPhone}}" class="cta-button">📞 Call Customer</a>
-        {{#if customerEmail}}
-            {{#unless (eq customerEmail 'Not provided')}}
-                <a href="mailto:{{customerEmail}}" class="cta-button">✉️ Email Customer</a>
-            {{/unless}}
-        {{/if}}
+        <div class="cta-buttons">
+            <a href="tel:{{customerPhone}}" class="cta-button">📞 Call Customer</a>
+            {{#if customerEmail}}
+                {{#unless (eq customerEmail 'Not provided')}}
+                    <a href="mailto:{{customerEmail}}" class="cta-button">✉️ Email Customer</a>
+                {{/unless}}
+            {{/if}}
+        </div>
     </div>
 
     <div class="timestamp">
