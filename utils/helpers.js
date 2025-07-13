@@ -223,6 +223,12 @@ async function calculatePrice(details, isHelper) {
         price *= 0.90; // Apply 10% discount
     }
 
+    // Apply 30% discount on the portion over 300
+    if (price > 300) {
+        const excess = price - 300;
+        price = 300 + (excess * 0.70); // 30% discount = pay 70% of the excess
+    }
+
     if(isHelper){
         price*=1.1;
     }
