@@ -21,7 +21,8 @@ const allowedOrigins = [
     'https://driver-system-gilt.vercel.app',
     'http://localhost:3006',
     'http://localhost:3000',
-    'http://localhost:3001'
+    'http://localhost:3001',
+    'https://eremovals.uk'
 ];
 
 // Connect to MongoDB
